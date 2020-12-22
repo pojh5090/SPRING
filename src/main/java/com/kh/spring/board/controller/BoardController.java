@@ -70,7 +70,7 @@ public class BoardController {
 		// 첨부 파일이 없을 때 :
 		
 		// 첨부 파일이 있다면
-		if(uploadFile != null && uploadFile.isEmpty()) {
+		if(uploadFile != null && !uploadFile.isEmpty()) {
 			String renameFileName = saveFile(uploadFile, request);
 			
 			if(renameFileName != null) {
@@ -82,6 +82,7 @@ public class BoardController {
 		int result = bService.insertBoard(b);
 		
 		if(result > 0) {
+			System.out.println(b.getOriginalFileName());
 			return "redirect:blist.bo";
 		} else {
 			throw new BoardException("게시물 등록에 실패하였습니다.");
@@ -117,4 +118,5 @@ public class BoardController {
 		}
 		return renameFileName;
 	}
+
 }
