@@ -119,14 +119,14 @@ public class MemberController {
 //	}
 	
 //	// 3. session에 저장할 때 @SessionAttributes 사용  (암호화 전)
-//	// model에 attribute가 추가될 때 자동으로 키 값을 찾아 세션에 등록
+//	// model에 attribute가 추가될 때 자동으로 키 값을 찾아 세션에 등록 ***********************8
 //	@RequestMapping("login.me")
 //	public String login(Member m, Model model) {	
 //		Member loginUser = mService.memberLogin(m);
 //		
 //		if(loginUser != null) {
 //			model.addAttribute("loginUser", loginUser); 
-//			//-->model에 loginUser 해줘서 맨 위에 sessionAttributes 할수 있는거임~~
+//			//---->model에 loginUser 해줘서 맨 위에 sessionAttributes 할수 있는거임~~
 //			return "redirect:home.do";
 //		} else {
 ////			model.addAttribute("message", "로그인에 실패하였습니다.");
@@ -173,17 +173,20 @@ public class MemberController {
 	
 	//회원가입 후 로그인 (암호화 후)
 	@RequestMapping("login.me")
-	public String login(Member m, Model model) {	
-		
+	public String login(Member m, Model model) {
+		//////////-----입력한 비번 , db에 있는 비번  비교!
+		/////*** 현재 loginUser에는 DB의 값이, Member m 에는 view에서 받아온 값 들어있음~!!!! ***     
 		Member loginUser = mService.memberLogin(m);
-		
-		//////////    -----입력한 비번 , db에 있는 비번  비교!
+	      
 		if(bcrypt.matches(m.getPwd(), loginUser.getPwd())) {
-			model.addAttribute("loginUser", loginUser); 
-			return "redirect:home.do";
-		} else {
-			throw new MemberException("로그인에 실패했습니다.");
-		}		
+		// 두 개를 비교해서 맞는지 확인한 후 맞으면 true 다르면 false
+			model.addAttribute("loginUser", loginUser);
+		    return "redirect:home.do";
+		}else {
+	//	   model.addAttribute("message", "로그인에 실패하였습니다.");
+	//	   return "../common/errorPage";
+		   throw new MemberException("로그인에 실패했습니다.");
+		}
 	}
 	
 	// 탈퇴하기
@@ -207,41 +210,43 @@ public class MemberController {
 	
 	// 내정보 수정폼으로
 	@RequestMapping("mupdateView.me")
-	public String updateFormView(Member m, Model model) {
+	public String updateFormView() {
 		return "memberUpdateForm";
 	}
 	
 	// 내정보 수정하기
 	@RequestMapping("mupdate.me")
 	public String updateMe(@ModelAttribute Member m, @RequestParam("post") String post,
-									 @RequestParam("address1") String address1,
-									 @RequestParam("address2") String address2, Model model) {
+									 				 @RequestParam("address1") String address1,
+									 				 @RequestParam("address2") String address2, Model model) {
 		m.setAddress(post + "/" + address1 + "/" + address2);
+		
 		int result = mService.updateMember(m);
 		
 		if(result > 0) {
-			model.addAttribute("loginUser", m);  ///---->여기가 막혔던 부분!!!
+			model.addAttribute("loginUser", m); //---->여기가 막혔던 부분!!!!!
 			return "mypage";
 		} else {
-			throw new MemberException("회원정보 수정에 실패했습니다.");
+			throw new MemberException("회원정보 수정에 실패");
+			
 		}
 	}
 	
 	// 비번 수정폼으로
 	@RequestMapping("mpwdUpdateView.me")
-	public String updatePwdFormView(Member m, Model model) {
+	public String updatePwdFormView() {
 		return "memberPwdUpdateForm";
 	}
 	
 	// 비번 수정하기
 	@RequestMapping("mPwdUpdate.me")
-	public String updatePwd(@RequestParam("pwd") String pwd, @RequestParam("newPwd1") String newPwd,
-							HttpSession session) {
+	public String updatePwd(@RequestParam("pwd") String pwd, @RequestParam("newPwd1") String newPwd, HttpSession session) {
+		
 		Member m = mService.memberLogin((Member)session.getAttribute("loginUser"));
 		
+		//기존 비번이 맞으면 보내줄꺼야
 		if(bcrypt.matches(pwd, m.getPwd())) {
 			String encNewPwd = bcrypt.encode(newPwd);
-			m.setPwd(encNewPwd);
 			
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put("id", m.getId());
@@ -252,10 +257,11 @@ public class MemberController {
 			if(result > 0) {
 				return "mypage";
 			} else {
-				throw new MemberException("비밀번호 변경에 실패하였습니다.");
+				throw new MemberException("비밀번호 변경 실패");
 			}
 			
 		} else {
+			System.out.println("왜 이동안해");
 			throw new MemberException("기존 비밀번호가 틀렸습니다.");
 		}
 	}

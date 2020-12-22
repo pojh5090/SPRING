@@ -7,9 +7,11 @@
 	
 	<typeAliases>
 		<typeAlias type="com.kh.spring.member.model.vo.Member" alias="Member"/>
+		<typeAlias type="com.kh.spring.board.model.vo.Board" alias="Board"/>
 	</typeAliases>
 	
 	<mappers>
 		<mapper resource="mapper/member-mapper.xml"/>
+		<mapper resource="mapper/board-mapper.xml"/>
 	</mappers>
 </configuration>
