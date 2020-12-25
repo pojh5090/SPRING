@@ -29,7 +29,7 @@
 			<th>첨부파일</th>
 		</tr>
 		<c:forEach var="b" items="${ list }">
-		<tr>
+		<tr class="contentTR">
 			<td align="center">${ b.bId }</td>
 			
 			<td align="left">
@@ -107,5 +107,18 @@
 			</td>
 		</tr>
 	</table>
+	
+	<script>
+		$(function(){
+			$('.contentTR').mouseenter(function(){
+				$(this).css({'color':'yellowgreen', 'font-weight':'bold', 'cursor':'pointer'});
+			}).mouseout(function(){
+				$(this).css({'color':'black', 'font-weight':'normal'});
+			}).click(function(){
+				var bId = $(this).children('td').eq(0).text();				
+				location.href='bdetail.bo?bId=' + bId + '&page=' + ${pi.currentPage};
+ 			});
+		});
+	</script>
 </body>
 </html>

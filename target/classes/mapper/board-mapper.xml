@@ -32,4 +32,32 @@
 		values(seq_bid.nextval, #{bTitle}, #{bWriter}, #{bContent}, #{originalFileName},
 				#{renameFileName}, default, sysdate, sysdate, default)
 	</insert>
+	
+	<update id="addReadCount">
+		update board
+		set bcount = bcount + 1
+		where bid = #{bId}
+	</update>
+	
+	<select id="detailBoard" resultMap="boardResultSet">
+		select *
+		from board
+		where bid = #{bId} and b_status = 'Y'
+	</select>
+	
+	<update id="updateBoard">
+		update board
+		set btitle = #{bTitle}, bcontent = #{bContent}, 
+		<if test="originalFileName != null">
+			original_filename= #{originalFileName},
+		</if>		
+		rename_filename = #{renameFileName}, b_modify_date = sysdate
+		where bid = #{bId}
+	</update>
+	
+	<update id="deleteBoard">
+		update board
+		set b_status = 'N'
+		where bid = #{bId}
+	</update>
 </mapper>

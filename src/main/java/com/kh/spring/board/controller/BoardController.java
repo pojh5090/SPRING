@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -117,6 +118,88 @@ public class BoardController {
 			e.printStackTrace();
 		}
 		return renameFileName;
+	}
+	
+	@RequestMapping("bdetail.bo")
+	public ModelAndView boardDetail(@RequestParam("bId") int bId, @RequestParam("page") int page, ModelAndView mv) {
+		
+		Board board = bService.selectBoard(bId);
+		
+		if(board != null) {
+			mv.addObject("board", board)
+			.addObject("page", page)
+			.setViewName("boardDetailView");
+		} else {
+			throw new BoardException("게시글 상세보기를 실패했습니다.");
+		}
+		return mv;
+	}
+	
+	@RequestMapping("bupView.bo")
+	public ModelAndView boardUpdateForm(@RequestParam("bId") int bId, @RequestParam("page") int page, ModelAndView mv) {
+		
+		// 수정할 때 조회수 같이 늘어남 ㅜ 새로 메소드 만들어줘야함!!!!!!!!!!!
+		Board board = bService.selectBoard(bId);
+		
+		mv.addObject("board", board)
+		.addObject("page", page)
+		.setViewName("boardUpdateForm");
+
+		return mv;
+	} 
+	
+	@RequestMapping("bupdate.bo")
+	public ModelAndView boardUpdate(@ModelAttribute Board b, @RequestParam("page") int page, @RequestParam("reloadFile") MultipartFile reloadFile, 
+			HttpServletRequest request, ModelAndView mv) {
+		// 첨부 파일이 있다면
+		if(reloadFile != null && !reloadFile.isEmpty()) {  //새로 변경할 파일이 있다면
+			if(b.getRenameFileName() != null) { //기존에 넣었던 파일이 있다면
+				deleteFile(b.getRenameFileName(), request);
+			}
+			String renameFileName = saveFile(reloadFile, request);
+			
+			// 잘 받아왔다면
+			if(renameFileName != null) {
+				b.setRenameFileName(renameFileName);
+				b.setOriginalFileName(reloadFile.getOriginalFilename());
+			}
+		}
+		
+		int result = bService.updateBoard(b);	
+		
+		if(result > 0) {
+			mv.addObject("page", page)
+			.addObject("bId", b.getbId())
+			.setViewName("redirect:bdetail.bo");
+		} else {
+			throw new BoardException("게시물 수정에 실패했습니다.");
+		}
+			
+		return mv;
+	}
+	
+	// 수정시 기존 파일 삭제 하기
+	public void deleteFile(String fileName, HttpServletRequest request) {
+		String root = request.getSession().getServletContext().getRealPath("resources");
+		String savePath = root + "\\buploadFiles";
+		
+		File f = new File(savePath + "\\" + fileName);
+		
+		if(f.exists()) {
+			f.delete();
+		}
+	}
+	
+	@RequestMapping("bdelete.bo")
+	public String boardDelete(@RequestParam("bId") int bId) {
+		
+		int result = bService.deleteBoard(bId);
+		
+		if(result > 0) {
+			return "redirect:blist.bo";
+		} else {
+			throw new BoardException("게시물 삭제에 실패하였습니다.");
+		}	
 	}
 
 }
