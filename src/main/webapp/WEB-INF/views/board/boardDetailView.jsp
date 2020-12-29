@@ -10,6 +10,8 @@
 <style type="text/css">
 	#boardDetailTable{width: 800px; margin: auto; border-collapse: collapse; border-left: hidden; border-right: hidden;}
 	#boardDetailTable tr td{padding: 5px;}
+	
+	.replyTable{ margin: auto; width: 500px; }
 </style>
 </head>
 <body>
@@ -82,6 +84,101 @@
 		<button onclick="location.href='home.do'">시작 페이지로 이동</button>
 		<button onclick="location.href='${ blist }'">목록 보기로 이동</button>
 	</p>
+	
+	<br><br>
+	
+	<table class="replyTable">
+		<tr>
+			<td><textarea rows="3" cols="55" id="rContent"></textarea></td>
+			<td><button id="rSubmit">등록하기</button></td>
+		</tr>
+	</table>
+	
+	<table class="replyTable" id="rtb">
+		<thead>
+			<tr>
+				<td colspan="2"><b id="rCount"></b></td>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+	
+	<script>
+	
+		// 댓글 등록
+		$('#rSubmit').on('click', function(){
+			var rContent = $('#rContent').val();
+			var refBid = ${ board.bId };
+			
+			$.ajax({
+				url: 'addReply.bo',
+				data: {rContent: rContent, refBid:refBid},
+				success: function(data){
+					console.log(data);
+					
+					if(data == 'success') {
+						$('#rContent').val('');
+						getReplyList();
+					}
+				}
+			});
+		});
+		
+
+		// 댓글 리스트 불러오기
+		function getReplyList() {
+			var bId = ${board.bId};
+
+			$.ajax({
+				url : 'rList.bo',
+				data : {bId : bId},
+				success : function(data) {
+					console.log(data);
+
+					$tableBody = $('#rtb tbody');
+					$tableBody.html('');
+
+					var $tr;
+					var $rWriter;
+					var $rContent;
+					var $rCreateDate;
+
+					$('#rCount').text('댓글(' + data.length + ')');
+
+					if (data.length > 0) {
+						for(var i in data) {
+							$tr = $('<tr>');
+							$rWriter = $('<td width="100">').text(
+									data[i].rWriter);
+							$rContent = $('<td>').text(data[i].rContent);
+							$rCreateDate = $('<td width="100">').text(
+									data[i].rCreateDate);
+
+							$tr.append($rWriter);
+							$tr.append($rContent);
+							$tr.append($rCreateDate);
+
+							$tableBody.append($tr);
+						}
+					} else {
+						$tr = $('<tr>');
+						$rContent = $('<tr colspan=3>').text('등록된 댓글이 없습니다.');
+
+						$tr.append($rContent);
+						$tableBody.append($tr);
+					}
+				}
+			});
+		}
+
+		$(function() {
+			getReplyList();
+			setInterval(function() {
+				getReplyList();
+			}, 1000);
+		});
+	</script>
+	
 	
 </body>
 </html>

@@ -1,7 +1,9 @@
 package com.kh.spring.member.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -264,5 +266,17 @@ public class MemberController {
 			System.out.println("왜 이동안해");
 			throw new MemberException("기존 비밀번호가 틀렸습니다.");
 		}
+	}
+	
+	@RequestMapping("dupid.me")
+	public void idDuplicateCheck(@RequestParam("id") String id, HttpServletResponse response) {
+		boolean isUsable = mService.checkIdDup(id) == 0 ? true : false;
+		
+		try {
+			response.getWriter().print(isUsable); //isUsable 보내주기
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 }

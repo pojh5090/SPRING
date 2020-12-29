@@ -15,4 +15,6 @@ public interface MemberService {
 	int updatePwd(HashMap<String, String> map);
 
 	int deleteMember(String id);
+
+	int checkIdDup(String id);
 }

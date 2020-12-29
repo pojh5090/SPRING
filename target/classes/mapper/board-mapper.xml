@@ -60,4 +60,36 @@
 		set b_status = 'N'
 		where bid = #{bId}
 	</update>
+	
+	<resultMap type="Reply" id="ReplyResultSet">
+			<id property="rId" column="RID" />
+			<result property="rContent" column="RCONTENT" />
+			<result property="refBid" column="REF_BID" />
+			<result property="rWriter" column="RWRITER" />
+			<result property="rCreateDate" column="R_CREATE_DATE" />
+			<result property="rModifyDate" column="R_MODIFY_DATE" />
+			<result property="rStatus" column="R_STATUS" />
+	</resultMap>
+	
+	<insert id="insertReply">
+		insert into reply
+		values(seq_rid.nextval, #{rContent}, #{refBid}, #{rWriter}, sysdate, sysdate, default)
+	</insert>
+	
+	<select id="selectReply" resultMap="ReplyResultSet">
+		select *
+		from reply
+		where ref_bid = #{bId} 
+			and r_status = 'Y'
+		order by rid desc
+	</select>
+	
+	<select id="selectTopList" resultMap="boardResultSet">
+		<![CDATA[
+			select *
+			from 
+			(select * from board where b_status = 'Y' order by bcount desc)
+			where rownum <= 5
+		]]>
+	</select>
 </mapper>

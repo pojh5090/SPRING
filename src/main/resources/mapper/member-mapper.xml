@@ -55,4 +55,10 @@
 		set pwd = #{newPwd}
 		where id = #{id}
 	</update>
+	
+	<select id="checkIdDup" resultType="_int">
+		select count(*)
+		from member
+		where id = #{id}
+	</select>
 </mapper>
