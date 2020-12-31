@@ -6,6 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,8 @@ public class MemberController {
 	
 	@Autowired
 	private BCryptPasswordEncoder bcrypt;
+	
+	private Logger logger = LoggerFactory.getLogger(MemberController.class);
 	
 	/******** 파라미터 전송 받는 방법 *******/
 	// 1.HttpServletRequest를 통해 전송받기
@@ -147,6 +151,8 @@ public class MemberController {
 	
 	@RequestMapping("enrollView.me")
 	public String enrollView() {
+		logger.debug("회원 등록 페이지");
+		
 		return "memberJoin";
 	}
 	
@@ -183,6 +189,7 @@ public class MemberController {
 		if(bcrypt.matches(m.getPwd(), loginUser.getPwd())) {
 		// 두 개를 비교해서 맞는지 확인한 후 맞으면 true 다르면 false
 			model.addAttribute("loginUser", loginUser);
+			logger.info(loginUser.getId());
 		    return "redirect:home.do";
 		}else {
 	//	   model.addAttribute("message", "로그인에 실패하였습니다.");

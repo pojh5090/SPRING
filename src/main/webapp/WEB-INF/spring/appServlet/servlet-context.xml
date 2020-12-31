@@ -23,4 +23,11 @@
 	</beans:bean>
 	
 	<context:component-scan base-package="com.kh.spring" />
+	
+	<interceptors>
+		<interceptor>
+			<mapping path="/**"/>
+			<beans:bean id="loggerInterceptor" class="com.kh.spring.common.interceptor.TestInterceptor"/>
+		</interceptor>
+	</interceptors>
 </beans:beans>

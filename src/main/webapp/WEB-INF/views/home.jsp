@@ -9,13 +9,23 @@
 <body>
 	<c:import url="common/menubar.jsp"></c:import>
 	
+	<script>
+		$(function(){
+			var msg = '${msg}';
+			if(msg != ""){
+				alert(msg);
+			}
+		});
+	</script>
+	
 	<h1>게시글 TOP5 목록</h1>
-	<table id="tb" border=1>
+	<table id="tb" border=1 align="center">
 		<thead>
 			<tr>
 				<th>번호</th>
 				<th>제목</th>
 				<th>작성자</th>
+				<th>내용</th>
 				<th>날짜</th>
 				<th>조회수</th>
 				<th>첨부파일</th>
@@ -53,6 +63,7 @@
 						$tr.append($bWriter);
 						$tr.append($bContent);
 						$tr.append($bCreateDate);
+						$tr.append($bCount);
 						$tr.append($bFile);
 						
 						$tableBody.append($tr);
